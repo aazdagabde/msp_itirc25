@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Graphique Humidité Avancé{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <h1 class="text-center">Graphique d'Humidité</h1>
+</div>
+<div class="card light-theme p-4">
+    <canvas id="humidityChart" style="height: 400px;"></canvas>
+    <div class="text-center mt-3">
+        <button id="resetZoomHumidity" class="btn btn-secondary">
+            <i class="fas fa-sync-alt"></i> Réinitialiser le zoom
+        </button>
+        <button id="downloadHumidity" class="btn btn-info">
+            <i class="fas fa-download"></i> Télécharger le graphique
+        </button>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    const rawDataHumidity = JSON.parse('{{ donnees_json|escapejs }}') || [];
+    const labelsHumidity = rawDataHumidity.map(item => item.date_heure);
+    const humiditeData = rawDataHumidity.map(item => item.humidite);
+    const ctxHumidity = document.getElementById('humidityChart').getContext('2d');
+    const gradientHumidity = ctxHumidity.createLinearGradient(0, 0, 0, 400);
+    gradientHumidity.addColorStop(0, 'rgba(0, 123, 255, 0.5)');
+    gradientHumidity.addColorStop(1, 'rgba(255, 255, 255, 0.5)');
+    const humidityChart = new Chart(ctxHumidity, {
+        type: 'line',
+        data: {
+            labels: labelsHumidity,
+            datasets: [{
+                label: 'Humidité (%)',
+                data: humiditeData,
+                backgroundColor: gradientHumidity,
+                borderColor: 'rgb(0, 123, 255)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: 'rgb(0, 123, 255)'
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'nearest', intersect: false },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: context => {
+                            const value = context.parsed.y;
+                            return context.dataset.label + ': ' + value.toFixed(2) + ' %';
+                        }
+                    }
+                },
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'xy',
+                        modifierKey: 'ctrl'
+                    },
+                    zoom: {
+                        wheel: { enabled: true },
+                        pinch: { enabled: true },
+                        mode: 'xy',
+                        speed: 0.1
+                    }
+                },
+                legend: { display: true, labels: { usePointStyle: true } }
+            },
+            animation: { duration: 1000, easing: 'easeInOutQuart' },
+            scales: {
+                x: { ticks: { autoSkip: true, maxTicksLimit: 10 } },
+                y: { beginAtZero: false, title: { display: true, text: 'Humidité (%)' } }
+            }
+        }
+    });
+    document.getElementById('resetZoomHumidity').addEventListener('click', () => {
+        humidityChart.resetZoom();
+    });
+    document.getElementById('downloadHumidity').addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = humidityChart.toBase64Image();
+        link.download = 'humidity_chart.png';
+        link.click();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Graphique Qualité de l'Air Avancé{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <h1 class="text-center">Graphique de la Qualité de l'Air</h1>
+</div>
+<div class="card light-theme p-4">
+    <canvas id="airQualityChart" style="height: 400px;"></canvas>
+    <div class="text-center mt-3">
+        <button id="resetZoomAirQuality" class="btn btn-secondary">
+            <i class="fas fa-sync-alt"></i> Réinitialiser le zoom
+        </button>
+        <button id="downloadAirQuality" class="btn btn-info">
+            <i class="fas fa-download"></i> Télécharger le graphique
+        </button>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    const rawDataAirQuality = JSON.parse('{{ donnees_json|escapejs }}') || [];
+    const labelsAirQuality = rawDataAirQuality.map(item => item.date_heure);
+    const airQualityData = rawDataAirQuality.map(item => item.qualite_air);
+    const ctxAirQuality = document.getElementById('airQualityChart').getContext('2d');
+    const gradientAirQuality = ctxAirQuality.createLinearGradient(0, 0, 0, 400);
+    gradientAirQuality.addColorStop(0, 'rgba(128, 0, 128, 0.5)');
+    gradientAirQuality.addColorStop(1, 'rgba(255, 255, 255, 0.5)');
+    const airQualityChart = new Chart(ctxAirQuality, {
+        type: 'line',
+        data: {
+            labels: labelsAirQuality,
+            datasets: [{
+                label: 'Qualité de l\'Air',
+                data: airQualityData,
+                backgroundColor: gradientAirQuality,
+                borderColor: 'rgb(128, 0, 128)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: 'rgb(128, 0, 128)'
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'nearest', intersect: false },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: context => {
+                            const value = context.parsed.y;
+                            return context.dataset.label + ': ' + value.toFixed(2);
+                        }
+                    }
+                },
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'xy',
+                        modifierKey: 'ctrl'
+                    },
+                    zoom: {
+                        wheel: { enabled: true },
+                        pinch: { enabled: true },
+                        mode: 'xy',
+                        speed: 0.1
+                    }
+                },
+                legend: { display: true, labels: { usePointStyle: true } }
+            },
+            animation: { duration: 1000, easing: 'easeInOutQuart' },
+            scales: {
+                x: { ticks: { autoSkip: true, maxTicksLimit: 10 } },
+                y: { beginAtZero: false, title: { display: true, text: 'Indice de Qualité' } }
+            }
+        }
+    });
+    document.getElementById('resetZoomAirQuality').addEventListener('click', () => {
+        airQualityChart.resetZoom();
+    });
+    document.getElementById('downloadAirQuality').addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = airQualityChart.toBase64Image();
+        link.download = 'airquality_chart.png';
+        link.click();
+    });
+</script>
+{% endblock %}

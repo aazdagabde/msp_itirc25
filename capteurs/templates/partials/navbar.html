@@ -1,0 +1,45 @@
+<nav class="navbar navbar-expand-lg navbar-light light-theme sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <i class="fas fa-cloud-sun"></i> Station Climatique
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="{% url 'afficher_donnees' %}"><i class="fas fa-table"></i> Tableau</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'charts_temperature' %}"><i class="fas fa-thermometer-half"></i> Température</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'charts_humidite' %}"><i class="fas fa-tint"></i> Humidité</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'charts_pression' %}"><i class="fas fa-tachometer-alt"></i> Pression</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'charts_airquality' %}"><i class="fas fa-wind"></i> Qualité Air</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'dernieres_valeurs' %}"><i class="fas fa-bolt"></i> Dernières Valeurs</a></li>
+            <li class="nav-item">
+    <a class="nav-link" href="{% url 'predict_climate' %}">
+        <i class="fas fa-brain"></i> Prédictions
+    </a>
+</li>
+
+            </ul>
+            <button class="btn btn-outline-success theme-toggle" id="themeToggle">
+                <i class="fas fa-adjust"></i> Thème
+            </button>
+        </div>
+    </div>
+    <script>
+        // Basculer entre thème clair et sombre
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            const body = document.body;
+            body.classList.toggle('light-theme');
+            body.classList.toggle('dark-theme');
+            const navbar = document.querySelector('.navbar');
+            navbar.classList.toggle('light-theme');
+            navbar.classList.toggle('dark-theme');
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.toggle('light-theme');
+                card.classList.toggle('dark-theme');
+            });
+        });
+    </script>
+</nav>

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Prédictions Météo & Anomalies{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <h1 class="text-center">Prédictions Météo & Détection d'Anomalies</h1>
+    <p class="text-center">Généré le : {{ generated_at|date:"d/m/Y H:i" }}</p>
+</div>
+{% if error %}
+    <div class="alert alert-danger text-center">{{ error }}</div>
+{% else %}
+    <div class="card light-theme p-3">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-custom">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date et Heure</th>
+                        <th>Température (°C)</th>
+                        <th>Humidité (%)</th>
+                        <th>Pression (hPa)</th>
+                        <th>Qualité Air</th>
+                        <th>Prédiction Pluie</th>
+                        <th>Anomalie</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for res in results %}
+                    <tr class="{% if res.anomalie %}table-danger{% endif %}">
+                        <td>{{ res.date_heure }}</td>
+                        <td>{{ res.temperature }}</td>
+                        <td>{{ res.humidite }}</td>
+                        <td>{{ res.pression }}</td>
+                        <td>{{ res.qualite_air }}</td>
+                        <td>{{ res.pluie_predite }}</td>
+                        <td>
+                            {% if res.anomalie %}
+                                <i class="fas fa-exclamation-triangle text-danger"></i> Oui
+                            {% else %}
+                                <i class="fas fa-check text-success"></i> Non
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

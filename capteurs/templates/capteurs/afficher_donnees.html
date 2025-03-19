@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Tableau des Données{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <h1 class="text-center">Données des Capteurs</h1>
+</div>
+<div class="card light-theme p-3">
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-custom">
+            <thead class="table-dark">
+                <tr>
+                    <th>Date et Heure</th>
+                    <th>Température (°C)</th>
+                    <th>Humidité (%)</th>
+                    <th>Pression (hPa)</th>
+                    <th>Qualité de l'Air</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for donnee in donnees %}
+                <tr>
+                    <td>{{ donnee.date_heure }}</td>
+                    <td>{{ donnee.temperature }}</td>
+                    <td>{{ donnee.humidite }}</td>
+                    <td>{{ donnee.pression }}</td>
+                    <td>{{ donnee.qualite_air }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

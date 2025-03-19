@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Graphique Pression Avancé{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <h1 class="text-center">Graphique de Pression</h1>
+</div>
+<div class="card light-theme p-4">
+    <canvas id="pressureChart" style="height: 400px;"></canvas>
+    <div class="text-center mt-3">
+        <button id="resetZoomPressure" class="btn btn-secondary">
+            <i class="fas fa-sync-alt"></i> Réinitialiser le zoom
+        </button>
+        <button id="downloadPressure" class="btn btn-info">
+            <i class="fas fa-download"></i> Télécharger le graphique
+        </button>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    const rawDataPressure = JSON.parse('{{ donnees_json|escapejs }}') || [];
+    const labelsPressure = rawDataPressure.map(item => item.date_heure);
+    const pressureData = rawDataPressure.map(item => item.pression);
+    const ctxPressure = document.getElementById('pressureChart').getContext('2d');
+    const gradientPressure = ctxPressure.createLinearGradient(0, 0, 0, 400);
+    gradientPressure.addColorStop(0, 'rgba(255, 165, 0, 0.5)');
+    gradientPressure.addColorStop(1, 'rgba(255, 255, 255, 0.5)');
+    const pressureChart = new Chart(ctxPressure, {
+        type: 'line',
+        data: {
+            labels: labelsPressure,
+            datasets: [{
+                label: 'Pression (hPa)',
+                data: pressureData,
+                backgroundColor: gradientPressure,
+                borderColor: 'rgb(255, 165, 0)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: 'rgb(255, 165, 0)'
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'nearest', intersect: false },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: context => {
+                            const value = context.parsed.y;
+                            return context.dataset.label + ': ' + value.toFixed(2) + ' hPa';
+                        }
+                    }
+                },
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'xy',
+                        modifierKey: 'ctrl'
+                    },
+                    zoom: {
+                        wheel: { enabled: true },
+                        pinch: { enabled: true },
+                        mode: 'xy',
+                        speed: 0.1
+                    }
+                },
+                legend: { display: true, labels: { usePointStyle: true } }
+            },
+            animation: { duration: 1000, easing: 'easeInOutQuart' },
+            scales: {
+                x: { ticks: { autoSkip: true, maxTicksLimit: 10 } },
+                y: { beginAtZero: false, title: { display: true, text: 'Pression (hPa)' } }
+            }
+        }
+    });
+    document.getElementById('resetZoomPressure').addEventListener('click', () => {
+        pressureChart.resetZoom();
+    });
+    document.getElementById('downloadPressure').addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = pressureChart.toBase64Image();
+        link.download = 'pressure_chart.png';
+        link.click();
+    });
+</script>
+{% endblock %}

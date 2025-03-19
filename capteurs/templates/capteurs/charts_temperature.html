@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Graphique Température Avancé{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <h1 class="text-center">Graphique de Température</h1>
+</div>
+<div class="card light-theme p-4">
+    <canvas id="temperatureChart" style="height: 400px;"></canvas>
+    <div class="text-center mt-3">
+        <button id="resetZoomTemp" class="btn btn-secondary">
+            <i class="fas fa-sync-alt"></i> Réinitialiser le zoom
+        </button>
+        <button id="downloadTemp" class="btn btn-info">
+            <i class="fas fa-download"></i> Télécharger le graphique
+        </button>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+    const rawDataTemp = JSON.parse('{{ donnees_json|escapejs }}') || [];
+    const labelsTemp = rawDataTemp.map(item => item.date_heure);
+    const temperatureData = rawDataTemp.map(item => item.temperature);
+    const ctxTemp = document.getElementById('temperatureChart').getContext('2d');
+    const gradientTemp = ctxTemp.createLinearGradient(0, 0, 0, 400);
+    gradientTemp.addColorStop(0, 'rgba(86, 171, 47, 0.5)');
+    gradientTemp.addColorStop(1, 'rgba(255, 255, 255, 0.5)');
+    const temperatureChart = new Chart(ctxTemp, {
+        type: 'line',
+        data: {
+            labels: labelsTemp,
+            datasets: [{
+                label: 'Température (°C)',
+                data: temperatureData,
+                backgroundColor: gradientTemp,
+                borderColor: 'rgb(86, 171, 47)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: 'rgb(86, 171, 47)'
+            }]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'nearest', intersect: false },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: context => {
+                            const value = context.parsed.y;
+                            return context.dataset.label + ': ' + value.toFixed(2) + ' °C';
+                        }
+                    }
+                },
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'xy',
+                        modifierKey: 'ctrl'
+                    },
+                    zoom: {
+                        wheel: { enabled: true },
+                        pinch: { enabled: true },
+                        mode: 'xy',
+                        speed: 0.1
+                    }
+                },
+                legend: { display: true, labels: { usePointStyle: true } }
+            },
+            animation: { duration: 1000, easing: 'easeInOutQuart' },
+            scales: {
+                x: { ticks: { autoSkip: true, maxTicksLimit: 10 } },
+                y: { beginAtZero: false, title: { display: true, text: 'Température (°C)' } }
+            }
+        }
+    });
+    document.getElementById('resetZoomTemp').addEventListener('click', () => {
+        temperatureChart.resetZoom();
+    });
+    document.getElementById('downloadTemp').addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = temperatureChart.toBase64Image();
+        link.download = 'temperature_chart.png';
+        link.click();
+    });
+</script>
+{% endblock %}

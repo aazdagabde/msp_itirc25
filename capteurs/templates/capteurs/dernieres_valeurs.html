@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Dernières Valeurs{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <h1 class="text-center">Dernières Valeurs</h1>
+</div>
+{% if derniere_donnee %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card light-theme text-center p-4">
+            <div class="card-body">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+                <h5 class="card-title">Date & Heure</h5>
+                <p class="card-text">{{ derniere_donnee.date_heure }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card light-theme text-center p-4">
+            <div class="card-body">
+                <i class="fas fa-thermometer-half fa-2x mb-2"></i>
+                <h5 class="card-title">Température</h5>
+                <p class="card-text">{{ derniere_donnee.temperature }} °C</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card light-theme text-center p-4">
+            <div class="card-body">
+                <i class="fas fa-tint fa-2x mb-2"></i>
+                <h5 class="card-title">Humidité</h5>
+                <p class="card-text">{{ derniere_donnee.humidite }} %</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card light-theme text-center p-4">
+            <div class="card-body">
+                <i class="fas fa-tachometer-alt fa-2x mb-2"></i>
+                <h5 class="card-title">Pression</h5>
+                <p class="card-text">{{ derniere_donnee.pression }} hPa</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card light-theme text-center p-4">
+            <div class="card-body">
+                <i class="fas fa-wind fa-2x mb-2"></i>
+                <h5 class="card-title">Qualité de l'Air</h5>
+                <p class="card-text">{{ derniere_donnee.qualite_air }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card light-theme text-center p-4">
+            <div class="card-body">
+                <i class="fas fa-hourglass-half fa-2x mb-2"></i>
+                <h5 class="card-title">Temps Écoulé</h5>
+                <p class="card-text">
+                    {% if time_passed %}
+                        {% with time_passed.total_seconds as seconds %}
+                            {% if seconds < 60 %}
+                                {{ seconds|floatformat:0 }} secondes
+                            {% elif seconds < 3600 %}
+                                {{ seconds|divisibleby:60 }} minutes
+                            {% else %}
+                                {{ seconds|divisibleby:3600 }} heures
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<p class="text-center">Aucune donnée disponible.</p>
+{% endif %}
+{% endblock %}
