@@ -8,10 +8,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'votre_clé_secrète_ici'
 
 # Mode de débogage (désactiver en production)
-DEBUG = True
+DEBUG = False
 
 # Liste des hôtes autorisés
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['.vercel.app']
 
 # Applications installées
 INSTALLED_APPS = [
